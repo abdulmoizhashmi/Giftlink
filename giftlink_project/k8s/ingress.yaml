@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: giftlink
+  namespace: giftlink
+spec:
+  rules:
+    - host: giftlink.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend: { service: { name: giftlink-backend, port: { number: 5000 } } }
+          - path: /sentiment
+            pathType: Prefix
+            backend: { service: { name: giftlink-backend, port: { number: 5000 } } }
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: giftlink-frontend, port: { number: 80 } } }

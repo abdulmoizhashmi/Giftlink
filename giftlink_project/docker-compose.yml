@@ -1,0 +1,39 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: giftlink-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - giftlink-mongo-data:/data/db
+
+  backend:
+    build: ./giftlink-backend
+    container_name: giftlink-backend
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      MONGODB_URI: mongodb://mongodb:27017/giftlink
+      JWT_SECRET: change-this-in-production
+      JWT_EXPIRES_IN: 2h
+      CLIENT_URL: http://localhost:5173
+    depends_on:
+      - mongodb
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: ./giftlink-frontend
+      args:
+        VITE_API_URL: http://localhost:5000
+    container_name: giftlink-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  giftlink-mongo-data:

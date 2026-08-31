@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: giftlink-backend
+  namespace: giftlink
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: giftlink-backend } }
+  template:
+    metadata: { labels: { app: giftlink-backend } }
+    spec:
+      containers:
+        - name: backend
+          image: YOUR_DOCKERHUB_USER/giftlink-backend:latest
+          ports: [{ containerPort: 5000 }]
+          env:
+            - { name: PORT, value: "5000" }
+            - { name: MONGODB_URI, value: "mongodb://mongodb:27017/giftlink" }
+            - { name: JWT_SECRET, value: "CHANGE_ME" }
+            - { name: CLIENT_URL, value: "http://localhost:5173" }
+          readinessProbe:
+            httpGet: { path: /health, port: 5000 }
+            initialDelaySeconds: 8
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: giftlink-backend
+  namespace: giftlink
+spec:
+  selector: { app: giftlink-backend }
+  ports: [{ port: 5000, targetPort: 5000 }]
